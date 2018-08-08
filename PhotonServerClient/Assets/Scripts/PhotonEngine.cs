@@ -7,7 +7,13 @@ public class PhotonEngine : MonoBehaviour,IPhotonPeerListener {
 
     private static PhotonEngine Instance;
 
-    private PhotonPeer peer = null;
+    private static PhotonPeer peer = null;
+    //客户端发消息给服务端 需要使用该属性
+    public static PhotonPeer Peer {
+        get {
+            return peer;
+        }
+    }
 
     private void Awake()
     {
@@ -64,13 +70,42 @@ public class PhotonEngine : MonoBehaviour,IPhotonPeerListener {
     //客户端没有请求，服务端通知客户端时执行该函数
     public void OnEvent(EventData eventData)
     {
-        throw new System.NotImplementedException();
+        switch (eventData.Code)
+        {
+            case 1:
+                Debug.Log("Receive server response by OnEvent! opCode : 1");
+                //处理服务端传送过来的数据
+                Dictionary<byte, object> data = eventData.Parameters;
+                object intValue1, intValue2;
+                data.TryGetValue(1, out intValue1);
+                data.TryGetValue(2, out intValue2);
+                Debug.Log(intValue1.ToString() + intValue2.ToString());
+                break;
+            default:
+                break;
+        }
     }
 
     //客户端向服务端发起请求，服务端相应并返回结果时执行该函数
     public void OnOperationResponse(OperationResponse operationResponse)
     {
-        throw new System.NotImplementedException();
+        //通过服务端的OperationResponse对象的OperationCode区分服务端的反馈
+        switch (operationResponse.OperationCode)
+        {
+            case 1:
+                Debug.Log("Receive server response! opCode : 1");
+                //处理服务端传送过来的数据
+                Dictionary<byte, object> data = operationResponse.Parameters;
+                object intValue1, intValue2;
+                data.TryGetValue(1,out intValue1);
+                data.TryGetValue(2, out intValue2);
+                Debug.Log(intValue1.ToString() + intValue2.ToString());
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
     }
 
     //peer有五种状态，一旦状态变化就会执行该函数
